@@ -1,9 +1,9 @@
 'use client';
 
+import React, { useState } from 'react';
 import PlayerWithSubtitles from '../components/PlayerWithSubtitles';
 import { parseSubtitles } from '../utils/subtitleParser';
 
-// 一段模拟的 VTT 格式数据
 const mockVtt = `
 [00:00.000 --> 00:02.500]
 Hello, welcome to this English learning app.
@@ -21,12 +21,67 @@ Or you can click the whole sentence to jump to that specific time.
 
 export default function Home() {
   const subtitles = parseSubtitles(mockVtt);
-  // 这里用一个开源免费的占位视频链接
-  const testVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+  // 默认使用测试视频
+  const [videoUrl, setVideoUrl] = useState("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+  const [inputUrl, setInputUrl] = useState("");
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setVideoUrl(url);
+    }
+  };
+
+  const handleUrlSubmit = () => {
+    if (inputUrl.trim()) {
+      setVideoUrl(inputUrl.trim());
+      setInputUrl("");
+    }
+  };
 
   return (
-    <main className="h-screen w-screen overflow-hidden">
-      <PlayerWithSubtitles videoUrl={testVideoUrl} subtitles={subtitles} />
+    <main className="h-screen w-screen overflow-hidden flex flex-col bg-[#0f0f11]">
+      {/* 顶部工具栏：用于导入视频或链接 */}
+      <div className="h-16 bg-[#1a1a1f] border-b border-gray-800 flex items-center px-6 justify-between flex-shrink-0 z-10">
+        <div className="text-white font-bold text-lg tracking-wide">
+          My English AI 🚀
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
+            <input 
+              type="text"
+              value={inputUrl}
+              onChange={(e) => setInputUrl(e.target.value)}
+              placeholder="粘贴视频直链 (支持 .mp4)"
+              className="bg-transparent text-sm text-white px-3 py-1.5 outline-none w-64"
+            />
+            <button 
+              onClick={handleUrlSubmit}
+              className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 transition-colors"
+            >
+              加载链接
+            </button>
+          </div>
+
+          <div className="text-gray-500 text-sm">或</div>
+
+          <label className="cursor-pointer bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-sm px-4 py-1.5 rounded-lg transition-colors">
+            📁 本地上传文件
+            <input 
+              type="file" 
+              accept="video/mp4,video/webm,audio/mp3,audio/wav" 
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <PlayerWithSubtitles videoUrl={videoUrl} subtitles={subtitles} />
+      </div>
     </main>
   );
 }

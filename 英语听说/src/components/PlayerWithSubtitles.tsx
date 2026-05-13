@@ -175,7 +175,7 @@ export default function PlayerWithSubtitles({ videoUrl, subtitles }: PlayerWithS
                  return (
                    <div
                      key={sub.id}
-                     ref={el => subtitleRefs.current[i] = el}
+                     ref={el => { subtitleRefs.current[i] = el; }}
                      onClick={() => handleSubtitleClick(sub.startTime)}
                      className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 ease-out
                        ${isActive ? 'bg-gray-800/60 shadow-xl scale-[1.02]' : 'hover:bg-gray-800/30 opacity-70 scale-100'}`}
